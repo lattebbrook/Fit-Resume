@@ -1,0 +1,4 @@
+pypdf2==3.0.1
+pythainlp==4.0.2
+tzdata==2023.3
+openai==0.28.1

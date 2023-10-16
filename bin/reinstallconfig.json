@@ -1,0 +1,13 @@
+{
+    "token" : "$INSERT_YOUR_KEY",
+	"env" : "Windows",
+    "OpenAI_API_Key": "$INSERT_YOUR_API",
+	"pathFrom": "$PATH_FROM",
+	"pathTo": "$PATH_TO",
+	"pathError" : "$PATH_ERROR",
+	"pathBackUp" : "$PATH_BACKUP",
+    "Database_Username": "$DB_USER_NAME",
+    "Database_Password": "$DB_PASSWORD",
+    "Transaction-Limit-Rate": 5,
+    "InstallStatus": $FIRST_TIME_INSTALL
+}
