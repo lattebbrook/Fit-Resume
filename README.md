@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/lattebbrook/fit-resume/blob/main/brand-logo.png">
-    <img src="Frame-logo.png" alt="Logo" width="419" height="89">
+    <img src="brand-logo.png" alt="Logo" width="419" height="89">
   </a>
 </div>
 
