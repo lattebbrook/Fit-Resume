@@ -20,15 +20,19 @@ public class ResourceConfig {
         configModel = null;
 
         try {
+
             File file = new File("../../conf/envconfig.json");
             String configContent = new String(Files.readAllBytes(file.toPath()));
+
             Gson gson = new Gson();
             configModel = new ConfigModel();
             configModel = gson.fromJson(configContent, ConfigModel.class);
+
         } catch (Exception e) {
             System.err.println("ERROR: Cannot instantiate config model, post construct failed with message: " + e.getMessage());
             e.printStackTrace();
         }
+
     }
 
     public ConfigModel getConfigModel(){

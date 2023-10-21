@@ -3,9 +3,9 @@ package com.mbclandgroup.fitresume.controller;
 import com.mbclandgroup.fitresume.config.ResourceConfig;
 import com.mbclandgroup.fitresume.enums.ECommand;
 import com.mbclandgroup.fitresume.instance.SharedInstance;
+import com.mbclandgroup.fitresume.repository.impl.CandidateRepositoryImpl;
 import com.mbclandgroup.fitresume.service.api.InputFileFlow;
-import com.mbclandgroup.fitresume.service.sde.DecryptionService;
-import com.mbclandgroup.fitresume.service.sde.EncryptionService;
+import com.mbclandgroup.fitresume.service.sde.SDEFlowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,20 +22,20 @@ import java.util.ArrayList;
 public class MainController {
 
     public final ResourceConfig resourceConfig;
-    private final DecryptionService decrypt;
-    private final EncryptionService encrypt;
+    private final SDEFlowService encrypt;
+    private final CandidateRepositoryImpl candidateRepImpl;
 
     @Autowired
-    public MainController(ResourceConfig resourceConfig, DecryptionService decrypt, EncryptionService encrypt){
+    public MainController(ResourceConfig resourceConfig, SDEFlowService encrypt, CandidateRepositoryImpl candidateRepImpl){
         this.resourceConfig = resourceConfig;
-        this.decrypt = decrypt;
         this.encrypt = encrypt;
+        this.candidateRepImpl = candidateRepImpl;
     }
 
     @PostMapping("/scan")
     public ResponseEntity<?> scan() throws IOException {
         SharedInstance instance = new SharedInstance(resourceConfig);
-        InputFileFlow inputFileFlow = new InputFileFlow(decrypt, encrypt);
+        InputFileFlow inputFileFlow = new InputFileFlow(candidateRepImpl, encrypt, candidateRepImpl);
         return ResponseEntity.ok(inputFileFlow.doAction(instance, ECommand.SCAN));
     }
 
@@ -51,8 +51,7 @@ public class MainController {
     @PostMapping("/convert")
     public ResponseEntity<?> readAndConvert() throws IOException {
         SharedInstance instance = new SharedInstance(resourceConfig);
-        InputFileFlow inputFileFlow = new InputFileFlow(decrypt, encrypt);
-
+        InputFileFlow inputFileFlow = new InputFileFlow(candidateRepImpl, encrypt, candidateRepImpl);
         return ResponseEntity.ok(inputFileFlow.doAction(instance, ECommand.READ));
     }
 

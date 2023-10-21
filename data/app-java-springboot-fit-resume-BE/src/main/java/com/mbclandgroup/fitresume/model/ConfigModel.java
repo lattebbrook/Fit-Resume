@@ -5,25 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ConfigModel {
 
-    private String token;
     private String env;
-    private String OpenAI_API_Key;
     private String pathFrom;
     private String pathTo;
     private String pathError;
     private String pathBackUp;
-    private String Database_Username;
-    private String Database_Password;
+    private String DatabaseURL;
     private byte Transaction_Limit_Rate;
+    private String AES128Key;
     private boolean InstallStatus;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     public String getEnv() {
         return env;
@@ -31,14 +21,6 @@ public class ConfigModel {
 
     public void setEnv(String env) {
         this.env = env;
-    }
-
-    public String getOpenAI_API_Key() {
-        return OpenAI_API_Key;
-    }
-
-    public void setOpenAI_API_Key(String openAI_API_Key) {
-        OpenAI_API_Key = openAI_API_Key;
     }
 
     public String getPathFrom() {
@@ -73,20 +55,12 @@ public class ConfigModel {
         this.pathBackUp = pathBackUp;
     }
 
-    public String getDatabase_Username() {
-        return Database_Username;
+    public String getDatabaseURL() {
+        return DatabaseURL;
     }
 
-    public void setDatabase_Username(String database_Username) {
-        Database_Username = database_Username;
-    }
-
-    public String getDatabase_Password() {
-        return Database_Password;
-    }
-
-    public void setDatabase_Password(String database_Password) {
-        Database_Password = database_Password;
+    public void setDatabaseURL(String databaseURL) {
+        DatabaseURL = databaseURL;
     }
 
     public byte getTransaction_Limit_Rate() {
@@ -95,6 +69,14 @@ public class ConfigModel {
 
     public void setTransaction_Limit_Rate(byte transaction_Limit_Rate) {
         Transaction_Limit_Rate = transaction_Limit_Rate;
+    }
+
+    public String getAES128Key() {
+        return AES128Key;
+    }
+
+    public void setAES128Key(String AES128Key) {
+        this.AES128Key = AES128Key;
     }
 
     public boolean isInstallStatus() {

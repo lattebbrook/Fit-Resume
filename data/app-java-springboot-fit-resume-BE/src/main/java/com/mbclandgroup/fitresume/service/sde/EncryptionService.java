@@ -1,23 +1,35 @@
 package com.mbclandgroup.fitresume.service.sde;
 
-import com.mbclandgroup.fitresume.instance.SharedInstance;
-import com.mbclandgroup.fitresume.model.Candidate;
 import org.springframework.stereotype.Service;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
 
 @Service
 public class EncryptionService {
 
-    public Candidate cipher(SharedInstance instance, Candidate data){
-        if(instance instanceof SharedInstance && instance.getInstanceUUID() == instance.getInstanceUUID()) {
-//            return constructAES256Logic(data);
-            return null;
-        }
-        return null;
+    //ENCRYPTION
+    private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
+    private static byte[] keyValue;
+    private static final byte[] iv = new byte[16]; // Use a fixed or generate a random IV
+
+    public String encryptingData(String data) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGORITHM);
+        c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+        byte[] encVal = c.doFinal(data.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(encVal);
     }
 
-//    private Candidate constructAES256Logic(Candidate data) {
-//        //AES256 encrypted whole class
-//        return new Candidate();
-//    }
+    public void setKeyValue(String key) {
+        keyValue = key.getBytes(); // Convert string directly to bytes
+    }
+
+    private static Key generateKey() {
+        return new SecretKeySpec(keyValue, "AES");
+    }
 
 }

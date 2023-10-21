@@ -19,7 +19,9 @@ if "%INSTALL_STATUS%"=="$FIRST_TIME_INSTALL" (
     echo [2.] This is the first-time installation, proceed to environment-variable installation and configuring paths. Please wait patiently.
 	call %PATH_ROOT%\bin\config-env-variable.bat
     call %PATH_ROOT%\bin\test_run_server.bat
+	pause
 ) else (
     echo [2.] Application already initialized on this machine. Proceed to run the application directly.
     call %PATH_ROOT%\bin\test_run_server.bat
+	pause
 )

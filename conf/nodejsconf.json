@@ -1,0 +1,11 @@
+{
+    "token" : "$INSERT_YOUR_KEY",
+    "OpenAI-API-Key": "$INSERT_YOUR_API",
+    "pathFrom" : "$PATH_FROM",
+    "pathTo" : "$PATH_TO",
+    "pathError" : "$PATH_ERROR",
+    "pathTemp" : "$PATH_TEMP",
+    "Database-Username": "$DB_USER_NAME",
+    "Database-Password": "$DB_PASSWORD",
+    "Transaction-Limit-Rate": 5
+}

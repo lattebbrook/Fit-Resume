@@ -1,49 +1,47 @@
 package com.mbclandgroup.fitresume.service.sde;
 
 import com.mbclandgroup.fitresume.instance.SharedInstance;
-import com.mbclandgroup.fitresume.model.Candidate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
-
-@Component
+/** <h2>String Encryption Service </h2>
+ *  <p>Encrypting String data before sending to database</p>
+ *  <p>Standard AES-128, 16 bit key requires Encryption and Decryption</p>
+ */
+@Service
 public class SDEFlowService {
 
-    private final DecryptionService decrypt;
-    private final EncryptionService encrypt;
-    private final SharedInstance instance;
-    private String uuid;
+    @Autowired
+    private EncryptionService encryptionService;
 
     @Autowired
-    public SDEFlowService(DecryptionService decrypt, EncryptionService encrypt, SharedInstance instance) {
-        this.decrypt = decrypt;
-        this.encrypt = encrypt;
-        this.instance = instance;
-        this.uuid = instance.getInstanceUUID();
-    }
+    private DecryptionService decryptionService;
 
-    public Candidate reqResponseFromEncrypt(SharedInstance instance){
-        return doEncryptProcess(instance);
-    }
+    private String uuid;
 
-    public void reqResponseFromDecrypt(){
-
-    }
-
-    private Candidate doEncryptProcess(SharedInstance instance){
-        for(File element : instance.getMapObjectCandidate().keySet()) {
-            return encrypt.cipher(instance, instance.getMapObjectCandidate().get(element));
+    public String encrypt(SharedInstance instance, String data){
+        try {
+            if(!data.isEmpty() || !data.equals(" ") || data != null) {
+                encryptionService.setKeyValue(instance.getResourceConfig().getConfigModel().getAES128Key());
+                return encryptionService.encryptingData(data);
+            } else {
+                return "N/A";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return null;
+        return data;
     }
 
-    private Candidate doDecryptProcess(Candidate data){
-        return decrypt.decipher(instance, data);
+    public String decrypt(SharedInstance instance, String encryptedData){
+        try {
+            if(!encryptedData.isEmpty() || !encryptedData.equals(" ") || encryptedData != null) {
+                decryptionService.setKeyValue(instance.getResourceConfig().getConfigModel().getAES128Key());
+                return decryptionService.decrypt(encryptedData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encryptedData;
     }
-
-    public String getUuid() {
-        return uuid;
-    }
-
 }
