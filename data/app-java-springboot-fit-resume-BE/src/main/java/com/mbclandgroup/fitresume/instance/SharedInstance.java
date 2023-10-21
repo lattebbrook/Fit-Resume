@@ -25,6 +25,7 @@ public class SharedInstance {
 
     private ArrayList<File> listFile;
     private HashMap<File, HashMap<String, Candidate>> objectMap = new LinkedHashMap<>();
+    private ArrayList<Candidate> listCandidateFile = new ArrayList<>();
     private LinkedHashMap<File, Candidate> encryptedMap;
 
     private ArrayList<String> reasonOfErrors;
@@ -117,8 +118,11 @@ public class SharedInstance {
         return resourceConfig;
     }
 
-    @Override
-    public String toString(){
-        return "";
+    public ArrayList<Candidate> getListCandidateFile() {
+        return listCandidateFile;
+    }
+
+    public void addListCandidateFile(Candidate candidate) {
+        this.listCandidateFile.add(candidate);
     }
 }

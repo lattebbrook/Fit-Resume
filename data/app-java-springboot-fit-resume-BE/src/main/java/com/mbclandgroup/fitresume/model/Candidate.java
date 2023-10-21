@@ -3,6 +3,7 @@ package com.mbclandgroup.fitresume.model;
 public class Candidate {
 
     private String _id;
+    private String fileName;
     private String name;
     private String age;
     private String dateOfBirth;
@@ -18,9 +19,10 @@ public class Candidate {
 
     public Candidate(){}
 
-    public Candidate(String name, String age, String dateOfBirth, String tel,
+    public Candidate(String fileName, String name, String age, String dateOfBirth, String tel,
                      String address, String degree, String currentPosition, String currentWorkplace,
                      String durationOfWork, String skills, String expectedSalary, String currentSalary) {
+        this.fileName = fileName;
         this.name = name;
         this.age = age;
         this.dateOfBirth = dateOfBirth;
@@ -41,6 +43,14 @@ public class Candidate {
 
     public void set_id(String _id) {
         this._id = _id;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getName() {
@@ -142,7 +152,7 @@ public class Candidate {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("Candidate{");
-        sb.append("_id='").append(_id).append('\'');
+        sb.append("  fileName='").append(fileName).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", age='").append(age).append('\'');
         sb.append(", dateOfBirth='").append(dateOfBirth).append('\'');
