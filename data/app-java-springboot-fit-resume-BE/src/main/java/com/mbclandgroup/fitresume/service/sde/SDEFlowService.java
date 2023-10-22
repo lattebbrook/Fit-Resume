@@ -11,11 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class SDEFlowService {
 
-    @Autowired
-    private EncryptionService encryptionService;
+
+    private final EncryptionService encryptionService;
+    private final DecryptionService decryptionService;
 
     @Autowired
-    private DecryptionService decryptionService;
+    public SDEFlowService(EncryptionService encryptionService, DecryptionService decryptionService) {
+        this.encryptionService = encryptionService;
+        this.decryptionService = decryptionService;
+    }
 
     private String uuid;
 

@@ -91,7 +91,7 @@ public class ConfigModel {
     public String toString(){
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.writeValueAsString(getClass().toString());
+            return objectMapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

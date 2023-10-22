@@ -1,7 +1,14 @@
 package com.mbclandgroup.fitresume.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "candidate")
 public class Candidate {
 
+    @Id
     private String _id;
     private String fileName;
     private String name;
@@ -16,8 +23,6 @@ public class Candidate {
     private String skills;
     private String expectedSalary;
     private String currentSalary;
-
-    public Candidate(){}
 
     public Candidate(String fileName, String name, String age, String dateOfBirth, String tel,
                      String address, String degree, String currentPosition, String currentWorkplace,
@@ -150,22 +155,13 @@ public class Candidate {
     }
 
     @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Candidate{");
-        sb.append("  fileName='").append(fileName).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", age='").append(age).append('\'');
-        sb.append(", dateOfBirth='").append(dateOfBirth).append('\'');
-        sb.append(", tel='").append(tel).append('\'');
-        sb.append(", address='").append(address).append('\'');
-        sb.append(", degree='").append(degree).append('\'');
-        sb.append(", currentPosition='").append(currentPosition).append('\'');
-        sb.append(", currentWorkplace='").append(currentWorkplace).append('\'');
-        sb.append(", durationOfWork='").append(durationOfWork).append('\'');
-        sb.append(", skills='").append(skills).append('\'');
-        sb.append(", expectedSalary='").append(expectedSalary).append('\'');
-        sb.append(", currentSalary='").append(currentSalary).append('\'');
-        sb.append('}');
-        return sb.toString();
+    public String toString(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }

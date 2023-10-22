@@ -1,29 +1,36 @@
 package com.mbclandgroup.fitresume.utils;
 
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
-@Component
 public class UtilsMethod {
 
-    public static void moveFile(File file){
-        File [] f = file.listFiles();
-        for(File element : f) {
-            if(!element.isDirectory() && f.length > 0) {
-                //TODO move to new location . . .
-            }
+    public static void moveFile(File file, String destination){
+        try {
+            Files.move(Paths.get(file.getAbsolutePath()), Paths.get(destination + "\\" + file.getName()), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //same logic but different method name
+    public static void moveFileError(File file, String destination){
+        try {
+            Files.move(Paths.get(file.getAbsolutePath()), Paths.get(destination + "\\" + file.getName()), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static void deleteFile(File file) {
-
         File [] f = file.listFiles();
         for(File element : f) {
             if(!element.isDirectory()) {
-                //TODO move to delete or remove . . .
+                element.delete();
             }
         }
     }

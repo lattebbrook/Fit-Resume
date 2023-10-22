@@ -1,5 +1,7 @@
 package com.mbclandgroup.fitresume.instance;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mbclandgroup.fitresume.config.ResourceConfig;
 import com.mbclandgroup.fitresume.model.Candidate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,10 @@ public class SharedInstance {
     private byte processLimit;             //process limit set by user
     private final byte rateLimit;          //rate limit of application, hard coded to prevent performance issue
 
-    private ArrayList<File> listFile;
+    private ArrayList<File> listFile = new ArrayList<>();
     private HashMap<File, HashMap<String, Candidate>> objectMap = new LinkedHashMap<>();
     private ArrayList<Candidate> listCandidateFile = new ArrayList<>();
-    private LinkedHashMap<File, Candidate> encryptedMap;
-
-    private ArrayList<String> reasonOfErrors;
+    private HashMap<File, String> reasonOfErrors = new LinkedHashMap<>();
 
     private final ResourceConfig resourceConfig;
 
@@ -86,20 +86,12 @@ public class SharedInstance {
         this.objectMap.put(key, value);
     }
 
-    public LinkedHashMap<File, Candidate> getEncryptedMap() {
-        return encryptedMap;
-    }
-
-    public void putEncryptedMap(File key, Candidate value) {
-        this.encryptedMap.put(key, value);
-    }
-
-    public ArrayList<String> getReasonOfErrors() {
+    public HashMap<File, String> getReasonOfErrors() {
         return reasonOfErrors;
     }
 
-    public void addReasonOfErrors(String data) {
-        this.reasonOfErrors.add(data);
+    public void putReasonOfErrors(File file, String reason) {
+        this.reasonOfErrors.put(file, reason);
     }
 
     public byte getProcessLimit() {
@@ -124,5 +116,15 @@ public class SharedInstance {
 
     public void addListCandidateFile(Candidate candidate) {
         this.listCandidateFile.add(candidate);
+    }
+
+    @Override
+    public String toString(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
