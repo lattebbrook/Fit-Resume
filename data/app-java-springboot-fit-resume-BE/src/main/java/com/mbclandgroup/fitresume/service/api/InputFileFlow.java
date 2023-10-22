@@ -7,9 +7,11 @@ import com.google.gson.JsonParser;
 import com.mbclandgroup.fitresume.enums.ECommand;
 import com.mbclandgroup.fitresume.instance.SharedInstance;
 import com.mbclandgroup.fitresume.model.Candidate;
-import com.mbclandgroup.fitresume.repository.impl.CandidateRepositoryImpl;
+import com.mbclandgroup.fitresume.repository.CandidateRepository;
 import com.mbclandgroup.fitresume.service.sde.SDEFlowService;
+import com.mbclandgroup.fitresume.utils.UtilsMethod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -17,19 +19,15 @@ import java.nio.file.Path;
 import java.util.*;
 
 @Component
+@Scope("prototype")
 public class InputFileFlow {
 
-    private final CandidateRepositoryImpl candidateRepImpl;
-    private final SDEFlowService encryption;
-    private final CandidateRepositoryImpl candidateRepository;
-
-    private boolean isReadyToMoveFile = false;
-    private boolean isFailValidate = false;
+    private final SDEFlowService sdeFlowService;
+    private final CandidateRepository candidateRepository;
 
     @Autowired
-    public InputFileFlow(CandidateRepositoryImpl candidateRepImpl, SDEFlowService encryption, CandidateRepositoryImpl candidateRepository) {
-        this.candidateRepImpl = candidateRepImpl;
-        this.encryption = encryption;
+    public InputFileFlow( SDEFlowService sdeFlowService, CandidateRepository candidateRepository) {
+        this.sdeFlowService = sdeFlowService;
         this.candidateRepository = candidateRepository;
     }
 
@@ -50,7 +48,7 @@ public class InputFileFlow {
         HashMap<String, String> resultHashMap = new LinkedHashMap<>();
         Path currentDir = new File(instance.getPathFrom()).toPath().toAbsolutePath();
 
-        if(currentDir.toFile().listFiles().length > 0 && currentDir.toFile().listFiles() != null) {
+        if(currentDir.toFile().listFiles().length > 0) {
             String line = null;
             try {
 
@@ -73,6 +71,7 @@ public class InputFileFlow {
 
                 stdInput.close();
                 stdError.close();
+
             } catch (IOException e) {
                 System.err.println("ERROR: Unable to process scanFileForWork " + e.getMessage());
                 e.printStackTrace();
@@ -90,23 +89,30 @@ public class InputFileFlow {
      * <p> 2. Iterating from the jsonObject entry set and then load json element as file to java object Candidate</p>
      * <p> 3. Check value from specific entry set content from tempMap if contain</p>
      **/
-    public void readAndConvert(SharedInstance instance) throws IOException {
+    public String readAndConvert(SharedInstance instance) throws IOException {
 
         Gson gson = new Gson();
         Path pathTemp = new File(instance.getPathTo()).toPath().toAbsolutePath();
         Candidate candidate = null;
         String key = "";
+        File temp = null;
+        FileReader fr = null;
 
         if (pathTemp.toFile().listFiles().length > 0) {
 
+            for(File e : pathTemp.toFile().listFiles()) {
+                instance.getListFile().add(e);
+            }
+
             for (File element : pathTemp.toFile().listFiles()) {
-                JsonObject myJsonObject = new Gson().fromJson(new FileReader(element), JsonObject.class);
+                fr = new FileReader(element);
+                JsonObject myJsonObject = new Gson().fromJson(fr, JsonObject.class);
+                temp = element;
 
                 for (Map.Entry<String, JsonElement> entry : myJsonObject.entrySet()) {
 
                     //TODO add key into the map objectMap key = file pdf name value = Candidate
                     key = entry.getKey();
-                    System.out.println("key[0]: " + key);
                     JsonElement jsonElement = JsonParser.parseString(entry.getValue().getAsString());
                     String prevJsonString = gson.toJson(jsonElement);
 
@@ -131,86 +137,111 @@ public class InputFileFlow {
                 }
             }
 
-            //to encryption
             System.out.println(instance.getListCandidateFile().toString());
+            fr.close();
 
-
-            //TEST post data to mongodb
-            for(int i = 0; i < instance.getListFile().size(); i++) {
-//                candidateRepImpl.createData(instance.getListCandidateFile().get(i));
-                System.out.println("Data created for candidate, instance of data " + instance.getListFile().get(i));
+            if(!instance.getListCandidateFile().isEmpty()) {
+                encryptFlow(instance);
             }
 
-
+            return instance.toString();
         } else {
             //log out that it is empty.
-            System.out.println("System error --> ERROR the system couldn't find any file, maybe the operation is not yet complete.");
+            System.out.println("System stdout --> The system couldn't find any file, please put file or wait the previous microservice operation to complete.");
         }
+
+        return instance.toString();
     }
 
-    public void encryptFlow(SharedInstance instance){
-        SDEFlowService sdeFlowService = new SDEFlowService();
+    public void encryptFlow(SharedInstance instance) throws IOException {
 
         if(instance != null && instance.getInstanceUUID() != null) {
-            //create copy for the operation
-            Queue<Candidate> queueList = new LinkedList<>(instance.getListCandidateFile());
 
-            for(Candidate element : queueList) {
-                element.setName(encryption.encrypt(instance, element.getName()));
-                element.setAge(encryption.encrypt(instance, element.getAge()));
-                element.setDateOfBirth(encryption.encrypt(instance, element.getDateOfBirth()));
-                element.setTel(encryption.encrypt(instance, element.getTel()));
-                element.setAddress(encryption.encrypt(instance, element.getAddress()));
-                element.setDegree(encryption.encrypt(instance, element.getDegree()));
-                element.setCurrentPosition(encryption.encrypt(instance, element.getCurrentPosition()));
-                element.setCurrentWorkplace(encryption.encrypt(instance, element.getCurrentWorkplace()));
-                element.setDurationOfWork(encryption.encrypt(instance, element.getDurationOfWork()));
-                element.setSkills(encryption.encrypt(instance, element.getSkills()));
-                element.setExpectedSalary(encryption.encrypt(instance, element.getExpectedSalary()));
-                element.setCurrentSalary(encryption.encrypt(instance, element.getCurrentSalary()));
+            if(instance.getListCandidateFile().size() > 0) {
+                //create copy for the operation
+                Queue<Candidate> queueList = new LinkedList<>(instance.getListCandidateFile());
+
+                for (Candidate element : queueList) {
+                    element.setName(sdeFlowService.encrypt(instance, element.getName()));
+                    element.setAge(sdeFlowService.encrypt(instance, element.getAge()));
+                    element.setDateOfBirth(sdeFlowService.encrypt(instance, element.getDateOfBirth()));
+                    element.setTel(sdeFlowService.encrypt(instance, element.getTel()));
+                    element.setAddress(sdeFlowService.encrypt(instance, element.getAddress()));
+                    element.setDegree(sdeFlowService.encrypt(instance, element.getDegree()));
+                    element.setCurrentPosition(sdeFlowService.encrypt(instance, element.getCurrentPosition()));
+                    element.setCurrentWorkplace(sdeFlowService.encrypt(instance, element.getCurrentWorkplace()));
+                    element.setDurationOfWork(sdeFlowService.encrypt(instance, element.getDurationOfWork()));
+                    element.setSkills(sdeFlowService.encrypt(instance, element.getSkills()));
+                    element.setExpectedSalary(sdeFlowService.encrypt(instance, element.getExpectedSalary()));
+                    element.setCurrentSalary(sdeFlowService.encrypt(instance, element.getCurrentSalary()));
+                }
+
+                //to database
+                if(checkSDEFlowServiceCorrectness(instance, queueList)) {
+                    PostMongoDBFlow(instance, queueList);
+                }
             }
 
-            if(checkEncryptionCorrectness(instance, queueList)) {
-                PostMongoDBFlow(instance, queueList);
-            }
-
-            moveFileBackUp(instance);
-            moveFileError(instance);
-            System.gc();
+            //finishing flow
+            validFlow(instance);
         }
     }
 
     // Decrypting and then check, if the data "decrypted" with the key has the same value as getListCandidate then
-    // We only need to check 1 object to be sure encryption is working
-    public boolean checkEncryptionCorrectness(SharedInstance instance, Queue<Candidate> queueList){
+    // We only need to check 1 object to be sure sdeFlowService is working
+    public boolean checkSDEFlowServiceCorrectness(SharedInstance instance, Queue<Candidate> queueList){
         if(instance != null && instance.getInstanceUUID() != null) {
-            //TODO Test
-            return instance.getListCandidateFile().get(0).getName().equals(encryption.decrypt(instance, queueList.peek().getName()));
+            return instance.getListCandidateFile().get(0).getName().equals(queueList.peek().getName());
         }
         return false;
+    }
+
+    public String checkTest(SharedInstance instance, String text){
+        System.out.println("Text to decipher: " + text);
+        return sdeFlowService.decrypt(instance, text);
     }
 
     public void PostMongoDBFlow(SharedInstance instance, Queue<Candidate> queueList) {
         if(instance != null && instance.getInstanceUUID() != null) {
             if(queueList.size() > 0) {
-                isReadyToMoveFile = true;
                 while(queueList.size() > 0) {
-                    candidateRepository.createData(queueList.poll());
+                    candidateRepository.insert(queueList.poll());
                 }
             }
         }
     }
 
-    public void moveFileBackUp(SharedInstance instance) {
-        if(isReadyToMoveFile && instance.getListFile().size() > 0) {
-            //TODO move file to path backup
+    public void moveFile(SharedInstance instance) throws IOException {
+        System.out.println("getListFile size = " + instance.getListFile().size());
+        if(instance.getListFile().size() > 0) {
+
+            for(File element : instance.getListFile()) {
+                UtilsMethod.moveFile(element, instance.getResourceConfig().getConfigModel().getPathBackUp());
+            }
         } else {
-
+            System.out.println("ERROR cannot move file due to unknown reason.");
         }
+
+        if(instance.getReasonOfErrors().size() > 0) {
+            for(Map.Entry<File, String> reasonErr : instance.getReasonOfErrors().entrySet()) {
+                UtilsMethod.moveFileError(reasonErr.getKey(), instance.getResourceConfig().getConfigModel().getPathError());
+            }
+        }
+
+        File file = new File(instance.getPathFrom());
+        for(File element : file.listFiles()){
+            UtilsMethod.moveFile(element, instance.getResourceConfig().getConfigModel().getPathBackUp() + "\\pdf");
+        }
+
+
+        System.out.println("Returning system to normal, awaiting new order.");
     }
 
-    public void moveFileError(SharedInstance instance) {
-        //TODO move file to path error in case there's any, create data structure to keep error file
+    public void validFlow(SharedInstance instance) throws IOException {
+        moveFile(instance);
+        instance = null;
+        System.gc();
     }
+
 
 }

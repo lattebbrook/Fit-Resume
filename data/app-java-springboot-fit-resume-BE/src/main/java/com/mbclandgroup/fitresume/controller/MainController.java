@@ -1,42 +1,38 @@
 package com.mbclandgroup.fitresume.controller;
 
+import com.google.gson.Gson;
 import com.mbclandgroup.fitresume.config.ResourceConfig;
 import com.mbclandgroup.fitresume.enums.ECommand;
 import com.mbclandgroup.fitresume.instance.SharedInstance;
-import com.mbclandgroup.fitresume.repository.impl.CandidateRepositoryImpl;
 import com.mbclandgroup.fitresume.service.api.InputFileFlow;
 import com.mbclandgroup.fitresume.service.sde.SDEFlowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
 public class MainController {
 
-    public final ResourceConfig resourceConfig;
-    private final SDEFlowService encrypt;
-    private final CandidateRepositoryImpl candidateRepImpl;
+    private final ResourceConfig resourceConfig;
+    private final InputFileFlow inputFileFlow;
+    private final SDEFlowService sdeFlowService;
 
     @Autowired
-    public MainController(ResourceConfig resourceConfig, SDEFlowService encrypt, CandidateRepositoryImpl candidateRepImpl){
+    public MainController(ResourceConfig resourceConfig, InputFileFlow inputFileFlow, SDEFlowService sdeFlowService, Gson gson){
         this.resourceConfig = resourceConfig;
-        this.encrypt = encrypt;
-        this.candidateRepImpl = candidateRepImpl;
+        this.inputFileFlow = inputFileFlow;
+        this.sdeFlowService = sdeFlowService;
     }
 
     @PostMapping("/scan")
     public ResponseEntity<?> scan() throws IOException {
         SharedInstance instance = new SharedInstance(resourceConfig);
-        InputFileFlow inputFileFlow = new InputFileFlow(candidateRepImpl, encrypt, candidateRepImpl);
-        return ResponseEntity.ok(inputFileFlow.doAction(instance, ECommand.SCAN));
+        return ResponseEntity.ok().body(inputFileFlow.doAction(instance, ECommand.SCAN));
     }
 
     /** <h3>Method readAndConvert()</h3>
@@ -49,22 +45,25 @@ public class MainController {
      *  <p> 5. After reading through all files, encrypt all data and post to mongodb. </p>
      */
     @PostMapping("/convert")
-    public ResponseEntity<?> readAndConvert() throws IOException {
+    public ResponseEntity<String> readAndConvert() throws IOException {
         SharedInstance instance = new SharedInstance(resourceConfig);
-        InputFileFlow inputFileFlow = new InputFileFlow(candidateRepImpl, encrypt, candidateRepImpl);
-        return ResponseEntity.ok(inputFileFlow.doAction(instance, ECommand.READ));
+        return ResponseEntity.ok().body(inputFileFlow.readAndConvert(instance));
     }
 
-    @GetMapping("/test")
-    public Object test() throws IOException {
+    @GetMapping("/cipher")
+    public String cipher(@RequestParam String text){
+        Map<String, Boolean> cipherMap = new LinkedHashMap<>();
         SharedInstance instance = new SharedInstance(resourceConfig);
-        File file = new File(instance.getPathFrom());
-        File [] f = file.listFiles();
-        ArrayList<String> arr = new ArrayList<>();
-        for(File elem : f) {
-            arr.add(elem.getName().toString());
-        }
+        String encryption = sdeFlowService.encrypt(instance, text);
+        String decryption = sdeFlowService.decrypt(instance, encryption);
+        return encryption;
+    }
 
-        return arr;
+    @GetMapping("/decipher")
+    public String decipher(@RequestParam String text){
+        Map<String, Boolean> cipherMap = new LinkedHashMap<>();
+        SharedInstance instance = new SharedInstance(resourceConfig);
+        String decryption = sdeFlowService.decrypt(instance, text);
+        return decryption;
     }
 }
