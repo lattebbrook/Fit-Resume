@@ -11,16 +11,16 @@ public class MongoDBConfig {
 
     /** Spring data mongodb version 3.1.x seem to not work well with URI, I have to put the database name before question mark in the uri.
     *   -- Tanawat */
-    private final ResourceConfig resourceConfig;
+    private final ConfigInterface configInterface;
 
     @Autowired
-    public MongoDBConfig(ResourceConfig resourceConfig) {
-        this.resourceConfig = resourceConfig;
+    public MongoDBConfig(ConfigInterface configInterface) {
+        this.configInterface = configInterface;
     }
 
     @Bean
     public SimpleMongoClientDatabaseFactory mongoDatabaseFactory() {
-        String connectionString = resourceConfig.getConfigModel().getDatabaseURL();
+        String connectionString = configInterface.getConfigModel().getDatabaseURL();
         return new SimpleMongoClientDatabaseFactory(connectionString);
     }
 

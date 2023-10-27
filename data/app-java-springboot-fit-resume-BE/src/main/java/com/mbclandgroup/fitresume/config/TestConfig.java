@@ -11,8 +11,8 @@ import java.io.File;
 import java.nio.file.Files;
 
 @Component
-@Profile("production")
-public class ResourceConfig implements ConfigInterface {
+@Profile("test")
+public class TestConfig implements ConfigInterface {
 
     private ConfigModel configModel;
 
@@ -22,7 +22,7 @@ public class ResourceConfig implements ConfigInterface {
 
         try {
 
-            File file = new File("../../conf/envconfig.json");
+            File file = new File("../../conf/testconfig.json");
             String configContent = new String(Files.readAllBytes(file.toPath()));
 
             Gson gson = new Gson();

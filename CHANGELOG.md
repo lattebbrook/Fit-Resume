@@ -69,7 +69,7 @@ All notable changes to this project will be documented in this file.
 - Revised some testing criteria and environment variable in local server.
 
 ### Changed
-- Refactored most of the code around SDEFlowService.
+- Refactored most of the code around InputFileFlow.
 - Refactored CandidateRespositoryImpl.
 - Refactored and mapped Candidate class for MongoDB collection.
 - Refactored MainController response.

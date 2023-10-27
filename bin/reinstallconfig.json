@@ -1,5 +1,4 @@
 {
-    "token" : "$INSERT_YOUR_KEY",
 	"env" : "Windows",
 	"pathFrom": "$PATH_FROM",
 	"pathTo": "$PATH_TO",
