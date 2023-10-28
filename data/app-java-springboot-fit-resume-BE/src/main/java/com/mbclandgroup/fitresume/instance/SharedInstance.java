@@ -2,7 +2,7 @@ package com.mbclandgroup.fitresume.instance;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mbclandgroup.fitresume.config.ResourceConfig;
+import com.mbclandgroup.fitresume.config.ConfigInterface;
 import com.mbclandgroup.fitresume.model.Candidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,10 +30,10 @@ public class SharedInstance {
     private ArrayList<Candidate> listCandidateFile = new ArrayList<>();
     private HashMap<File, String> reasonOfErrors = new LinkedHashMap<>();
 
-    private final ResourceConfig resourceConfig;
+    private final ConfigInterface resourceConfig;
 
     @Autowired
-    public SharedInstance(ResourceConfig resourceConfig){
+    public SharedInstance(ConfigInterface resourceConfig){
         this.resourceConfig = resourceConfig;
         this.instanceUUID = UUID.randomUUID().toString();
         this.rateLimit = 5;
@@ -106,7 +106,7 @@ public class SharedInstance {
         return rateLimit;
     }
 
-    public ResourceConfig getResourceConfig() {
+    public ConfigInterface getResourceConfig() {
         return resourceConfig;
     }
 
