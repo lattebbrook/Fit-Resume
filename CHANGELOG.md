@@ -80,3 +80,22 @@ All notable changes to this project will be documented in this file.
 
 ### Acknowledged
 - https://spring.io/guides/gs/accessing-data-mongodb/
+
+## [v 0.10.2-R1] - 2023-10-29
+
+### Added
+- Front End Page
+- Initialize ExpressJs
+- Resume App Page
+ 
+### Fixed
+-
+
+### Changed
+- 
+
+### Removed
+- 
+
+### Acknowledged
+-
