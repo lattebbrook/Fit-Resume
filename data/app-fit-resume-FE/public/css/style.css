@@ -2,7 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: Istok Web, Noto San Thai, san-serif;
+  font-family: 'Noto Sans Thai', sans-serif;
   background-color: #F8F8F8;
 }
 
@@ -13,6 +13,10 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+h1 {
+  font-family: 'Noto Sans Thai', sans-serif;
 }
 
 @media (max-width: 600px) {
@@ -92,6 +96,16 @@ a {
   }
 }
 
+/* chrome / safari */
+input[type="number"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* --- END SIDE NAV --- */
 /* main content */
 .main {
@@ -103,10 +117,24 @@ a {
   border-radius: 30px 0 0 0;
   top: 0;
   left: 17rem;
-  z-index: 999;
+  padding-right: 5rem;
+  padding-top: 2rem;
+  padding-bottom: 10rem;
+  z-index: 500;
   width: 100%;
   height: 100%;
   background-color: #EAEEF5;
+  overflow: auto; /* Instead of 'hidden', to allow scrolling */
+}
+
+.content {
+  position: fixed;
+  border-radius: 30px 0 0 0;
+  top: 0;
+  left: 17rem;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
 }
 
 .menuspan {
@@ -114,4 +142,10 @@ a {
   justify-items: center;
   align-items: center;
   position: relative;
+}
+
+.container ::placeholder {
+  color: #d1d1d1;
+  opacity: 1;
+  /* Firefox */
 }

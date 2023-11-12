@@ -45,6 +45,21 @@ if not os.path.exists(path):
     print(f"The folder '{path}' does not exist!!")
     exist
 
+def parse_to_dict(text):
+    # Split the text into key-value pairs
+    text = repl.remove_space(text)
+    key_value_pairs = [pair.strip() for pair in text.split(",")]
+    
+    # Create a dictionary from the key-value pairs
+    result_dict = {}
+    for pair in key_value_pairs:
+        if ':' in pair:
+            key, value = pair.split(":", 1)
+            result_dict[key.strip()] = value.strip()
+    
+    return result_dict
+    
+
 if len(os.listdir(path)) > 0:
     print("[OK] Config path successfully configurated.")
     for file_pdf in glob.glob(os.path.join(path, "*.pdf")):
@@ -58,13 +73,14 @@ if len(os.listdir(path)) > 0:
                 pdf_text += page.extract_text()
                 normalized_text = pdf_text
                 # dictionary with file name and content to the list
-                file_content_map[os.path.basename(file_pdf)] = repl.remove_space(normalized_text)
+                # key = file_name / value = remove space
+                result = ai.fix_text_with_openai(repl.remove_space(normalized_text))
+                file_content_map[os.path.basename(file_pdf)] = parse_to_dict(result)
 else:
     print(f"The path'{path}' is empty, will not perform job.")
     print("File(s) failed to created!!! <=====")
 
-#create json file from data
-new_dict_json_map = {}
+print(file_content_map)
 
 if file_content_map is not None:
     date = datetime.datetime.now()
@@ -73,13 +89,13 @@ if file_content_map is not None:
     print("[OK] Formatting json file. Please be patient! It can take around 60-70s per file, since Thai language consumes more token than English.")
     print("[OK] Please stay connected to the internet at all time. Working on the AI Formatting.")
 
-    for k, v in file_content_map.items():
-        new_dict_json_map[k] = ai.fix_text_with_openai(v)
-    
-    json_object = json.dumps(new_dict_json_map, indent=4, ensure_ascii=False)
+    #write json from new_dict_json_map where file name = os.path.basename(file_pdf)
+    json_object = json.dumps(file_content_map, indent=4, ensure_ascii=False)
 
-    with open(path_to + "\\" + file_name + ".json", "x", encoding="utf-8") as output:
+    with open(path_to + "\\" + file_name + ".json", "x", encoding="utf-8") as output: 
         output.write(json_object)
 
-    print("[OK] Total json file(s) created: " + str(len(new_dict_json_map)))
+    print("[OK] Total json file(s) created: " + str(len(file_content_map)))
     print("File(s) created successfully! <=====")
+
+

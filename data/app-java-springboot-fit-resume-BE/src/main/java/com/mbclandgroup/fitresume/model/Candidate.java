@@ -18,14 +18,14 @@ public class Candidate {
     private String address;
     private String degree;
     private String currentPosition;
-    private String currentWorkplace;
+    private String workplaceHistory;
     private String durationOfWork;
     private String skills;
     private String expectedSalary;
     private String currentSalary;
 
     public Candidate(String fileName, String name, String age, String dateOfBirth, String tel,
-                     String address, String degree, String currentPosition, String currentWorkplace,
+                     String address, String degree, String currentPosition, String workplaceHistory,
                      String durationOfWork, String skills, String expectedSalary, String currentSalary) {
         this.fileName = fileName;
         this.name = name;
@@ -35,7 +35,7 @@ public class Candidate {
         this.address = address;
         this.degree = degree;
         this.currentPosition = currentPosition;
-        this.currentWorkplace = currentWorkplace;
+        this.workplaceHistory = workplaceHistory;
         this.durationOfWork = durationOfWork;
         this.skills = skills;
         this.expectedSalary = expectedSalary;
@@ -114,12 +114,12 @@ public class Candidate {
         this.currentPosition = currentPosition;
     }
 
-    public String getCurrentWorkplace() {
-        return currentWorkplace;
+    public String getWorkplaceHistory() {
+        return workplaceHistory;
     }
 
-    public void setCurrentWorkplace(String currentWorkplace) {
-        this.currentWorkplace = currentWorkplace;
+    public void setWorkplaceHistory(String workplaceHistory) {
+        this.workplaceHistory = workplaceHistory;
     }
 
     public String getDurationOfWork() {

@@ -1,9 +1,6 @@
 package com.mbclandgroup.fitresume.service.api;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mbclandgroup.fitresume.enums.ECommand;
 import com.mbclandgroup.fitresume.instance.SharedInstance;
 import com.mbclandgroup.fitresume.model.Candidate;
@@ -12,6 +9,7 @@ import com.mbclandgroup.fitresume.service.sde.SDEFlowService;
 import com.mbclandgroup.fitresume.utils.UtilsMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -31,17 +29,18 @@ public class InputFileFlow {
         this.candidateRepository = candidateRepository;
     }
 
-    public Object doAction(SharedInstance sharedInstance, ECommand Command) throws IOException {
+    @Async
+    public Object doAction(SharedInstance sharedInstance, ECommand Command) throws Exception {
         switch (Command) {
             case SCAN -> {
                 return scanFileForWork(sharedInstance);
             }
-            case READ -> readAndConvert(sharedInstance);
-            case ENCRYPT -> encryptFlow(sharedInstance);
+            case CREATE -> readAndConvert(sharedInstance);
         }
         return null;
     }
 
+    @Async
     public HashMap<String, String> scanFileForWork(SharedInstance instance){
 
         //initialization
@@ -89,70 +88,117 @@ public class InputFileFlow {
      * <p> 2. Iterating from the jsonObject entry set and then load json element as file to java object Candidate</p>
      * <p> 3. Check value from specific entry set content from tempMap if contain</p>
      **/
-    public String readAndConvert(SharedInstance instance) throws IOException {
-
+    @Async
+    public String readAndConvert(SharedInstance instance) throws Exception {
+        ArrayList<File> arrFiles = new ArrayList<>();
         Gson gson = new Gson();
         Path pathTemp = new File(instance.getPathTo()).toPath().toAbsolutePath();
         Candidate candidate = null;
         String key = "";
-        File temp = null;
-        FileReader fr = null;
 
         if (pathTemp.toFile().listFiles().length > 0) {
-
-            for(File e : pathTemp.toFile().listFiles()) {
-                instance.getListFile().add(e);
-            }
-
             for (File element : pathTemp.toFile().listFiles()) {
-                fr = new FileReader(element);
-                JsonObject myJsonObject = new Gson().fromJson(fr, JsonObject.class);
-                temp = element;
+                arrFiles.add(element);
+                try (FileReader fr = new FileReader(element)) {
+                    JsonObject myJsonObject = gson.fromJson(fr, JsonObject.class);
 
-                for (Map.Entry<String, JsonElement> entry : myJsonObject.entrySet()) {
+                    for (Map.Entry<String, JsonElement> entry : myJsonObject.entrySet()) {
+                        key = entry.getKey();
 
-                    //TODO add key into the map objectMap key = file pdf name value = Candidate
-                    key = entry.getKey();
-                    JsonElement jsonElement = JsonParser.parseString(entry.getValue().getAsString());
-                    String prevJsonString = gson.toJson(jsonElement);
+                        // Convert JsonElement to string and replace
+                        String jsonString = gson.toJson(entry.getValue());
+                        String formattedString = jsonString
+                                .replace("ชื่อ", "name")
+                                .replace("อายุ", "age")
+                                .replace("เกิดวันที่", "dateOfBirth")
+                                .replace("เบอร์โทร", "tel")
+                                .replace("ที่อยู่", "address")
+                                .replace("ประวัติการศึกษา", "degree")
+                                .replace("ตำแหน่งปัจจุบัน", "currentPosition")
+                                .replace("ประวัติการทำงาน", "workplaceHistory")
+                                .replace("ระยะเวลาทำงาน", "durationOfWork")
+                                .replace("ลักษณะงาน", "skills")
+                                .replace("เงินเดือนที่คาดหวัง", "expectedSalary")
+                                .replace("เงินเดือนปัจจุบัน", "currentSalary");
 
-                    String formattedString = prevJsonString
-                            .replace("ชื่อ", "name")
-                            .replace("อายุ", "age")
-                            .replace("วันเกิด", "dateOfBirth")
-                            .replace("เบอร์โทร", "tel")
-                            .replace("ที่อยู่", "address")
-                            .replace("วุฒิการศึกษา", "degree")
-                            .replace("ตำแหน่งปัจจุบัน", "currentPosition")
-                            .replace("ที่ทำงานปัจจุบัน", "currentWorkplace")
-                            .replace("ระยะเวลาทำงาน", "durationOfWork")
-                            .replace("ลักษณะงาน", "skills")
-                            .replace("เงินเดือนที่คาดหวัง", "expectedSalary")
-                            .replace("เงินเดือนปัจจุบัน", "currentSalary");
-
-                    JsonElement formattedJsonElement = JsonParser.parseString(formattedString);
-                    candidate = gson.fromJson(formattedJsonElement, Candidate.class);
-                    candidate.setFileName(key);
-                    instance.addListCandidateFile(candidate);
+                        JsonElement formattedJsonElement = JsonParser.parseString(formattedString);
+                        candidate = gson.fromJson(formattedJsonElement, Candidate.class);
+                        candidate.setFileName(key);
+                        System.out.println(candidate.toString());
+                        instance.addListCandidateFile(candidate);
+                    }
+                } catch (IOException | JsonSyntaxException e) {
+                    // Handle exceptions
+                    e.printStackTrace();
                 }
             }
 
             System.out.println(instance.getListCandidateFile().toString());
-            fr.close();
+            instance.setListFile(arrFiles);
 
-            if(!instance.getListCandidateFile().isEmpty()) {
-                encryptFlow(instance);
+            // No encryption required. Validate input, if input = null then insert "[N/A]"
+            if (!instance.getListCandidateFile().isEmpty()) {
+                reqInsertMongoDB(instance);
             }
-
-            return instance.toString();
         } else {
-            //log out that it is empty.
+            // Log out that it is empty.
             System.out.println("System stdout --> The system couldn't find any file, please put file or wait the previous microservice operation to complete.");
         }
 
         return instance.toString();
     }
 
+    public String validateInput(String data) throws Exception {
+        String temp = "N/A";
+        try {
+            if(data == null) {
+                return temp;
+            } else {
+                return data;
+            }
+        } catch (NullPointerException ne) {
+            ne.printStackTrace();
+            System.out.println("Caught exception because data is null");
+        }
+        return data;
+    }
+
+    public void reqInsertMongoDB(SharedInstance instance) throws Exception {
+
+        if(instance != null && instance.getInstanceUUID() != null) {
+
+            if(instance.getListCandidateFile().size() > 0) {
+                //create copy for the operation
+                Queue<Candidate> queueList = new LinkedList<>(instance.getListCandidateFile());
+
+                for (Candidate element : queueList) {
+                    element.setName(validateInput(element.getName()));
+                    element.setAge(validateInput( element.getAge()));
+                    element.setDateOfBirth(validateInput(element.getDateOfBirth()));
+                    element.setTel(validateInput(element.getTel()));
+                    element.setAddress(validateInput(element.getAddress()));
+                    element.setDegree(validateInput(element.getDegree()));
+                    element.setCurrentPosition(validateInput(element.getCurrentPosition()));
+                    element.setWorkplaceHistory(validateInput(element.getWorkplaceHistory()));
+                    element.setDurationOfWork(validateInput(element.getDurationOfWork()));
+                    element.setSkills(validateInput(element.getSkills()));
+                    element.setExpectedSalary(validateInput(element.getExpectedSalary()));
+                    element.setCurrentSalary(validateInput(element.getCurrentSalary()));
+                }
+
+                //to database
+                if(checkSDEFlowServiceCorrectness(instance, queueList)) {
+                    PostMongoDBFlow(instance);
+                }
+            }
+
+            //finishing flow
+            validFlow(instance);
+        }
+    }
+
+
+    @Deprecated
     public void encryptFlow(SharedInstance instance) throws IOException {
 
         if(instance != null && instance.getInstanceUUID() != null) {
@@ -169,7 +215,7 @@ public class InputFileFlow {
                     element.setAddress(sdeFlowService.encrypt(instance, element.getAddress()));
                     element.setDegree(sdeFlowService.encrypt(instance, element.getDegree()));
                     element.setCurrentPosition(sdeFlowService.encrypt(instance, element.getCurrentPosition()));
-                    element.setCurrentWorkplace(sdeFlowService.encrypt(instance, element.getCurrentWorkplace()));
+                    element.setWorkplaceHistory(sdeFlowService.encrypt(instance, element.getWorkplaceHistory()));
                     element.setDurationOfWork(sdeFlowService.encrypt(instance, element.getDurationOfWork()));
                     element.setSkills(sdeFlowService.encrypt(instance, element.getSkills()));
                     element.setExpectedSalary(sdeFlowService.encrypt(instance, element.getExpectedSalary()));
@@ -178,7 +224,7 @@ public class InputFileFlow {
 
                 //to database
                 if(checkSDEFlowServiceCorrectness(instance, queueList)) {
-                    PostMongoDBFlow(instance, queueList);
+                    PostMongoDBFlow(instance);
                 }
             }
 
@@ -189,6 +235,7 @@ public class InputFileFlow {
 
     // Decrypting and then check, if the data "decrypted" with the key has the same value as getListCandidate then
     // We only need to check 1 object to be sure sdeFlowService is working
+    @Deprecated
     public boolean checkSDEFlowServiceCorrectness(SharedInstance instance, Queue<Candidate> queueList){
         if(instance != null && instance.getInstanceUUID() != null) {
             return instance.getListCandidateFile().get(0).getName().equals(queueList.peek().getName());
@@ -201,10 +248,13 @@ public class InputFileFlow {
         return sdeFlowService.decrypt(instance, text);
     }
 
-    public void PostMongoDBFlow(SharedInstance instance, Queue<Candidate> queueList) {
+    public void PostMongoDBFlow(SharedInstance instance) {
+        System.out.println("Save data to database");
         if(instance != null && instance.getInstanceUUID() != null) {
+            Queue<Candidate> queueList = new LinkedList<>(instance.getListCandidateFile());
             if(queueList.size() > 0) {
                 while(queueList.size() > 0) {
+                    System.out.println(queueList.peek().toString());
                     candidateRepository.insert(queueList.poll());
                 }
             }
@@ -213,6 +263,7 @@ public class InputFileFlow {
 
     public void moveFile(SharedInstance instance) throws IOException {
         System.out.println("getListFile size = " + instance.getListFile().size());
+
         if(instance.getListFile().size() > 0) {
 
             for(File element : instance.getListFile()) {
