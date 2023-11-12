@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.mbclandgroup.fitresume.model.ConfigModel;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

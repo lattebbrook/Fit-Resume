@@ -1,7 +1,7 @@
 package com.mbclandgroup.fitresume.controller;
 
 import com.google.gson.Gson;
-import com.mbclandgroup.fitresume.config.ResourceConfig;
+import com.mbclandgroup.fitresume.config.ConfigInterface;
 import com.mbclandgroup.fitresume.enums.ECommand;
 import com.mbclandgroup.fitresume.instance.SharedInstance;
 import com.mbclandgroup.fitresume.service.api.InputFileFlow;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,19 +17,19 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class MainController {
 
-    private final ResourceConfig resourceConfig;
+    private final ConfigInterface resourceConfig;
     private final InputFileFlow inputFileFlow;
     private final SDEFlowService sdeFlowService;
 
     @Autowired
-    public MainController(ResourceConfig resourceConfig, InputFileFlow inputFileFlow, SDEFlowService sdeFlowService, Gson gson){
+    public MainController(ConfigInterface resourceConfig, InputFileFlow inputFileFlow, SDEFlowService sdeFlowService, Gson gson){
         this.resourceConfig = resourceConfig;
         this.inputFileFlow = inputFileFlow;
         this.sdeFlowService = sdeFlowService;
     }
 
     @PostMapping("/scan")
-    public ResponseEntity<?> scan() throws IOException {
+    public ResponseEntity<?> scan() throws Exception {
         SharedInstance instance = new SharedInstance(resourceConfig);
         return ResponseEntity.ok().body(inputFileFlow.doAction(instance, ECommand.SCAN));
     }
@@ -45,12 +44,13 @@ public class MainController {
      *  <p> 5. After reading through all files, encrypt all data and post to mongodb. </p>
      */
     @PostMapping("/convert")
-    public ResponseEntity<String> readAndConvert() throws IOException {
+    public ResponseEntity<?> readAndConvert() throws Exception {
         SharedInstance instance = new SharedInstance(resourceConfig);
-        return ResponseEntity.ok().body(inputFileFlow.readAndConvert(instance));
+        return ResponseEntity.ok().body(inputFileFlow.doAction(instance, ECommand.CREATE));
     }
 
     @GetMapping("/cipher")
+    @Deprecated
     public String cipher(@RequestParam String text){
         Map<String, Boolean> cipherMap = new LinkedHashMap<>();
         SharedInstance instance = new SharedInstance(resourceConfig);
@@ -60,6 +60,7 @@ public class MainController {
     }
 
     @GetMapping("/decipher")
+    @Deprecated
     public String decipher(@RequestParam String text){
         Map<String, Boolean> cipherMap = new LinkedHashMap<>();
         SharedInstance instance = new SharedInstance(resourceConfig);

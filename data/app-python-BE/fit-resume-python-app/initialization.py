@@ -14,6 +14,7 @@ with open(f, 'r') as file:
 
 # Replace the target string
 filedata = filedata.replace('$DB_USERNAME', os.environ.get('MONGO_DB_ENV'))
+filedata = filedata.replace('$AES128_Key', os.environ.get('AES128_KEY'))
 
 with open(f, 'w') as file:
   file.write(filedata)
