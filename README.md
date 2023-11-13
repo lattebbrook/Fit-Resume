@@ -23,7 +23,7 @@ Fit Resume is an automate software to deal with the complicate PDF reader, Forma
 
 <b>Python:</b> <a href="">Python 3.11.5</a><br>
 <b>Java:</b> <a href="">Java 21</a> preferable Java 21<br> 
-<b>NodeJs:</b> <a href="">NodeJs</a><br>
+<b>NodeJs:</b> <a href="">18.13.0</a><br>
 
   ```sh
   npm install npm@latest -g
