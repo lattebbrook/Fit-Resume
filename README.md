@@ -19,6 +19,8 @@ Fit Resume is an automate software to deal with the complicate PDF reader, Forma
 <!-- GETTING STARTED -->
 ## Getting Started
 
+Figma Design: <a href="https://www.figma.com/file/sX8Hc9fUh13t7CgFVf4FbC/fit-resume-FE?type=design&node-id=0%3A1&mode=design&t=ezcKQp9QCtOBvzZq-1"> Figma Design (early version) </a>
+
 ### Prerequisites:
 
 <b>Python:</b> <a href="">Python 3.11.5</a><br>
