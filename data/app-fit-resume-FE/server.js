@@ -1,5 +1,4 @@
 const { default: mongoose, mongo } = require('mongoose');
-const { encryptData } = require('./services/EncrpytionService');
 const Candidate = require('./models/Candidate');
 const express = require('express');
 const path = require('path');
