@@ -16,12 +16,18 @@ public class EncryptionService {
     private static byte[] keyValue;
     private static final byte[] iv = new byte[16]; // Use a fixed or generate a random IV
 
-    public String encryptingData(String data) throws Exception {
-        Key key = generateKey();
-        Cipher c = Cipher.getInstance(ALGORITHM);
-        c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-        byte[] encVal = c.doFinal(data.getBytes("UTF-8"));
-        return Base64.getEncoder().encodeToString(encVal);
+    public String encryptingData(String data) {
+        try {
+            Key key = generateKey();
+            Cipher c = Cipher.getInstance(ALGORITHM);
+            c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+            byte[] encVal = c.doFinal(data.getBytes("UTF-8"));
+            return Base64.getEncoder().encodeToString(encVal);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ERROR: Invalid key range, required 16 bytes of key but found " + keyValue.length);
+        }
+        return "ERROR";
     }
 
     public void setKeyValue(String key) {

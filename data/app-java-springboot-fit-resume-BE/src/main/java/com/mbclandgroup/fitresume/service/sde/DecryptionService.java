@@ -23,11 +23,18 @@ public class DecryptionService {
     public String decrypt(String data) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             BadPaddingException, IllegalBlockSizeException, InvalidKeyException, UnsupportedEncodingException {
-        Key key = generateKey();
-        Cipher c = Cipher.getInstance(ALGORITHM);
-        c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-        byte[] plainText = c.doFinal(Base64.getDecoder().decode(data));
-        return new String(plainText, "UTF-8");
+        try {
+            Key key = generateKey();
+            Cipher c = Cipher.getInstance(ALGORITHM);
+            c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+            byte[] plainText = c.doFinal(Base64.getDecoder().decode(data));
+            return new String(plainText, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ERROR: Cannot parse decipher data from database " + e.getMessage());
+        }
+
+        return "ERROR";
     }
 
     public void setKeyValue(String key) {

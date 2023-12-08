@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/resume-app', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'resume-app.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/test', (req, res) => {
@@ -81,8 +81,8 @@ app.get('/api/fe/read/candidate', async(req, res) => {
         const name = req.body.name;
 
         if(name) {
-            const candidate = await Candidate.findOne({ name: encryptData(name) });
-            res.status(200).json({ address: candidate.address});
+            const candidate = await Candidate.findOne({ name: name });
+            res.status(200).json(candidate);
         } else {
             res.status(404).json("Not found");
         }
