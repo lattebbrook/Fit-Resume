@@ -1,4 +1,6 @@
 import dashboard from "./views/dashboard.js";
+import resumeapp from "./views/resume-app.js";
+
 import { initializeResumeAppScript } from './scripts/ResumeApp.js';
 
 const navigateTo = url => {
@@ -9,8 +11,8 @@ const navigateTo = url => {
 
 const router = async () => {
     const routes = [
-        { path: '/', view: dashboard }
-        //{ path: '/resume-app', view: () => console.log('Resume App')},
+        { path: '/', view: dashboard },
+        { path: '/resume-app', view: resumeapp }
         //{ path: '/resume-upload', view: () => console.log('Resume Upload')},
         //{ path: '/resume-status', view: () => console.log('Resume Status')},
         //{ path: '/chatgpt', view: () => console.log('OpenAI Assistant App')},
@@ -43,11 +45,10 @@ const router = async () => {
     const view = new match.route.view();
     const mainContainer = document.querySelector('#app');
     
-
     mainContainer.innerHTML = await view.getHtml();
     view.executeScripts(mainContainer);
     
-    if (match.route.path === '/') {
+    if (match.route.path === '/resume-app') {
         initializeResumeAppScript();
     }
 

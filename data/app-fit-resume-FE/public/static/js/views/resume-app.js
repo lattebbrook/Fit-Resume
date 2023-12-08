@@ -3,11 +3,11 @@ import AbstractView from "../controller/AbstractView.js";
 export default class extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Dashboard");
+        this.setTitle("Resume App");
     }
 
     async getHtml() {
-        const response = await fetch('../../dashboard.html');
+        const response = await fetch('../../resume-app.html');
         const text = await response.text();
         return text;
     }

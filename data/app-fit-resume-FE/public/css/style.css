@@ -85,15 +85,16 @@ h1 {
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-@media screen and (max-height: 500px) {
+@media screen and (max-width: 600px) {
 
   .box {
-    left: 10rem;
+    left: 0rem;
   }
 
   .sidenav a {
     font-size: 14px;
   }
+
 }
 
 /* chrome / safari */
@@ -112,19 +113,19 @@ input[type="number"] {
   padding-left: 15rem;
 }
 
+/* Improved .box styling */
 .box {
   position: fixed;
-  border-radius: 30px 0 0 0;
   top: 0;
   left: 17rem;
-  padding-right: 5rem;
-  padding-top: 2rem;
-  padding-bottom: 10rem;
+  padding: 2rem 5rem 10rem;
   z-index: 500;
-  width: 100%;
+  width: calc(100% - 17rem);
   height: 100%;
   background-color: #EAEEF5;
-  overflow: auto; /* Instead of 'hidden', to allow scrolling */
+  overflow: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 30px 0 0 0;
 }
 
 .content {
@@ -148,4 +149,16 @@ input[type="number"] {
   color: #d1d1d1;
   opacity: 1;
   /* Firefox */
+}
+
+.form-container ::placeholder {
+  color: #d1d1d1;
+  opacity: 1;
+  /* Firefox */
+}
+
+.row {
+  padding-right: 1px;
+  padding-left: 1px;
+  margin-top: 10px;
 }
